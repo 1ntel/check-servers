@@ -261,7 +261,12 @@ unset( $item ); // break the reference with the last element
 
 $array['data'] = $data;
 
+$array_old = load( 'status.php' );
+
+$array_diff[] = array_diff($array, $array_old);
+
 chdir( dirname( __FILE__ ) );
+save( 'log.php', $array_diff );
 save( 'status.php', $array );
 
 //return $array;
