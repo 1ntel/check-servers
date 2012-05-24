@@ -5,10 +5,10 @@ error_reporting( E_ERROR );
 require_once( 'inc/utils.php' );
 //$perf = new perf_timer();
 
-$array = load( 'status.php' );
+$array = load( 'data/status.php' );
 if ( ( strtotime( 'now' ) - $array['page']['timestamp'] ) > 150 ){
 	require( 'check.php' );
-	$array = load( 'status.php' );
+	$array = load( 'data/status.php' );
 }
 $data = $array['data'];
 $page = $array['page'];

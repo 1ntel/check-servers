@@ -129,108 +129,7 @@ function print_status ($status) {
 $array['page']['title'] = 'Доступность ресурсов';
 $array['page']['timestamp'] = strtotime( 'now' ); 
 
-$data = array(
-	array(
-		"name"	=> "proxy:3129",
-		"type"	=> "host-port",
-		"host"	=> "proxy.stok.local",
-		"port"	=> 3129,
-		"desc"	=> "прокси"
-	),
-	array(
-		"name"	=> "base",
-		"type"	=> "host-port",
-		"host"	=> "base.stok.local",
-		"port"	=> 80,
-		//"link"	=> "http://base/",
-		"desc"	=> "вебсервер"
-	),
-	array(
-		"name"	=> "terminal",
-		"type"	=> "host-port",
-		"host"	=> "terminal.stok.local",
-		"port"	=> 3389,
-		//"link"	=> "rdp://terminal",
-		"desc"	=> "Терминальный сервер, 1С"
-	),
-	array(
-		"name"	=> "znago",
-		"type"	=> "ping",
-		"host"	=> "znago.stok.local",
-		//"link"	=> "vnc://znago",
-		"desc"	=> "сервер ЗНиАГО"
-	),
-	array(
-		"name"	=> "sto3",
-		"type"	=> "ping",
-		"host"	=> "sto3.stok.local",
-		//"link"	=> "vnc://sto3",
-		"desc"	=> "автосфера"
-	),
-	array(
-		"name"	=> "proxy",
-		"type"	=> "ping",
-		"host"	=> "proxy.stok.local",
-		//"link"	=> "vnc://proxy",
-		"desc"	=> "шлюз в Интернет"
-	),
-	/* array(
-		"name"	=> "videosrv",
-		"type"	=> "host-port-off",
-		"host"	=> "videosrv.stok.local",
-		"port"	=> 21400,
-		//"link"	=> "vnc://videosrv",
-		"desc"	=> "видеосервер"
-	),
-	array(
-		"name"	=> "garantia2",
-		"type"	=> "host-port-off",
-		"host"	=> "garantia2.stok.local",
-		"port"	=> 21400,
-		//"link"	=> "vnc://garantia2",
-		"desc"	=> "видеосервер"
-	), */
-	array(
-		"name"	=> "tportal.vaz.ru",
-		"type"	=> "host-port",
-		"host"	=> "tportal.vaz.ru",
-		"port"	=> 80,
-		"link"	=> "http://tportal.vaz.ru/",
-		"desc"	=> "технопортал"
-	),
-	array(
-		"name"	=> "autosphere.ru",
-		"type"	=> "ping",
-		"host"	=> "vpn.autosphere.ru",
-		//"link"	=> "http://www.autosphere.ru/",
-		"desc"	=> "автосфера"
-	),
-	/* array(
-		"name"	=> "util.minprom.gov.ru",
-		"type"	=> "util-minprom",
-		"link"	=> "http://util.minprom.gov.ru/",
-		"desc"	=> "утилизация"
-	), */
-	array(
-		"name"	=> "lada-direct.ru",
-		"type"	=> "lada-direct",
-		"link"	=> "http://lada-direct.ru/",
-		"desc"	=> "продажи Гранты"
-	), 
-	array(
-		"name"	=> "Интернет",
-		"type"	=> "internet"
-	),
-	array(
-		"name"	=> "mail.stok.local:110",
-		"type"	=> "host-port",
-		"host"	=> "mail.stok.local",
-		"port"	=> 110,
-		"desc"	=> "почтовый сервер"
-	)
-);
-
-
+$data = load( 'data/config.php' );
 
 foreach ( $data as &$item ) {
 	switch ($item['type']) {
@@ -261,13 +160,55 @@ unset( $item ); // break the reference with the last element
 
 $array['data'] = $data;
 
-$array_old = load( 'status.php' );
+$array_old = load( 'data/status.php' );
+$array_log = load( 'data/log.php' );
 
-$array_diff[] = array_diff($array, $array_old);
+function array_diff_assoc_recursive($array1, $array2)
+{
+	foreach ($array1 as $key => $value)
+	{
+		if (is_array($value))
+		{
+			if (!array_key_exists($key, $array2))
+			{
+				$difference[$key] = $value;
+			}
+			elseif (!is_array($array2[$key]))
+			{
+				$difference[$key] = $value;
+			}
+			else
+			{
+				$new_diff = array_diff_assoc_recursive($value, $array2[$key]);
+				if ($new_diff != FALSE)
+				{
+					$difference[$key] = $new_diff;
+				}
+			}
+		}
+		elseif (!array_key_exists($key, $array2) || $array2[$key] != $value)
+		{
+			$difference[$key] = $value;
+		}
+	}
+	return !isset($difference) ? FALSE : $difference;
+}
+
+array_unshift(
+	$array_log, 
+	array(
+		'timestamp' => strtotime( 'now' ), 
+		'data' => array_diff_assoc_recursive(
+			$array, 
+			$array_old
+		)
+	)
+);
+$array_log = array_slice($array_log, 0, 14);
 
 chdir( dirname( __FILE__ ) );
-save( 'log.php', $array_diff );
-save( 'status.php', $array );
+save( 'data/log.php', $array_log );
+save( 'data/status.php', $array );
 
 //return $array;
 //$perf->text();
