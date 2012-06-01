@@ -1,5 +1,7 @@
 ﻿data/log.php
+data\log.php
 data/status.php
+data\status.php
 
 #################
 ## Eclipse

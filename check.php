@@ -58,6 +58,7 @@ function testLadaDirect () {
 		return array( "code" => "good", "text" => "Нет" );
 	}
 	return array( "code" => "warning", "text" => "Есть" );
+	save( 'data/LadaDirect.txt', array($html) );
 }
 
 function testInternetConnection () {

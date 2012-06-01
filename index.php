@@ -21,6 +21,7 @@ unset($array);
 <title><?=$page['title']?></title>
 <meta charset="utf-8" />
 <meta http-equiv="refresh" content="10">
+<link title="Feed" type="application/rss+xml" rel="alternate" href="feed.php"/>
 <style>
 
 body{
